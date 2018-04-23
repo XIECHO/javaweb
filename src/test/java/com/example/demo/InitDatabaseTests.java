@@ -1,11 +1,10 @@
 package com.example.demo;
 
+import com.example.demo.dao.CommentDao;
 import com.example.demo.dao.LoginTicketDao;
 import com.example.demo.dao.NewsDao;
 import com.example.demo.dao.UserDao;
-import com.example.demo.model.LoginTicket;
-import com.example.demo.model.News;
-import com.example.demo.model.User;
+import com.example.demo.model.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +17,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import java.util.Date;
 import java.util.Random;
 
+import static com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type.Comment;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = DemoApplication.class)
 @Sql("/init-schema.sql")
@@ -29,6 +30,8 @@ public class InitDatabaseTests {
 	UserDao userDao;
 	@Autowired
 	LoginTicketDao loginTicketDao;
+	@Autowired
+	CommentDao commentDao;
 	@Test
 	public void initData() {
 		Random random = new Random();
@@ -67,6 +70,19 @@ public class InitDatabaseTests {
 			loginTicketDao.addTicket(ticket);
 			loginTicketDao.updateStatus(ticket.getTicket(), 2);
 
+
+
+			for(int j = 0; j < 3; ++j){
+				Comment comment = new Comment();
+				comment.setUserId(i+1);
+				comment.setCreatedDate(new Date());
+				comment.setStatus(0);
+				comment.setContent("这是一个评论!" + String.valueOf(j));
+				comment.setEntityId(news.getId());
+				comment.setEntityType(EntityType.ENTITY_NEWS);
+				commentDao.addComment(comment);
+			}
+
 		}
 
 		Assert.assertEquals(userDao.selcctedById(1).getPassword(),"newpassword");
@@ -77,6 +93,8 @@ public class InitDatabaseTests {
 
 		Assert.assertEquals(1,loginTicketDao.selcctByTicket("TICKET1").getUserId());
 		Assert.assertEquals(2,loginTicketDao.selcctByTicket("TICKET1").getStatus());
+
+		Assert.assertNotNull(commentDao.selectByEntity(1,EntityType.ENTITY_NEWS).get(0));
 	}
 
 }

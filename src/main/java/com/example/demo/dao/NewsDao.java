@@ -1,9 +1,7 @@
 package com.example.demo.dao;
 
 import com.example.demo.model.News;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -18,4 +16,13 @@ public interface NewsDao {
 
     List<News> selectByUserIdAndOffset(@Param("userId") int userId, @Param("offset") int offset,
                                          @Param("limit") int limit);
+
+    @Select({"select", SELECT_FIELDS, " from ", TABLE_NAME, " where id = #{Id}"})
+    News getById(int id);
+
+    @Update({"update", TABLE_NAME, " set comment_count = #{commentCount} where id = #{id}"})
+    int updateCommentCount(@Param("id") int id, @Param("commentCount") int commentCount);
+
+    @Update({"update", TABLE_NAME, " set like_count = #{likeCount} where id = #{id} "})
+    int updateLikeCount(@Param("id") int id, @Param("likeCount") int likeCount);
 }
